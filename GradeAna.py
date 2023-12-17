@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib
 from matplotlib import pyplot
 from matplotlib.ticker import AutoMinorLocator
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+
 
 # My cvs utilities
 from csvutil import readfloatfile
@@ -71,8 +73,8 @@ x = sorted(data['total'])
 bar.barh(y,x)
 bar.set_xlim(40.,100.)
 bar.set_ylim(0,len(x))
-minorlocator = AutoMinorLocator(4)
-bar.xaxis.set_minor_locator(minorlocator)
+bar.xaxis.set_major_locator(MultipleLocator(10))
+bar.xaxis.set_minor_locator(MultipleLocator(1))
 bar.grid(True,which='major',color='b',linestyle='-')
 bar.grid(True,which='minor',color='r',linestyle='--')
 bar.set_xlabel('Total')
