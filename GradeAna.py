@@ -9,7 +9,7 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import pandas as pd
 
-data = pd.read_csv('totals.csv')
+data = pd.read_excel('totals.xlsx')
 
 # Make a histogram and a bar plot
 
