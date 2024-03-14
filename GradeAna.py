@@ -7,13 +7,9 @@ import matplotlib
 from matplotlib import pyplot
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+import pandas as pd
 
-
-# My cvs utilities
-from csvutil import readfloatfile
-
-# read in the data file
-header,data = readfloatfile('totals.csv')
+data = pd.read_csv('totals.csv')
 
 # Make a histogram and a bar plot
 
