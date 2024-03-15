@@ -17,7 +17,6 @@ from matplotlib import pyplot
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import pandas as pd
-from pandas import to_numeric
 
 if (len(sys.argv)>1):
     filename = sys.argv[1]
@@ -26,28 +25,27 @@ else:
     
 print("Reading data from file ",filename,"...")
 
-# Read the exported grades from Canvas
-data = pd.read_csv('totals.csv')
-# Drop the first row because it's different
-data=data.drop(0)
+# Read the exported grades from Canvas. Skip the second row because
+# it's got special text in it that will cause everything to read in
+# as an object
+data = pd.read_csv('totals.csv',skiprows=[1])
 # Drop the test student
 data = data[data['Student']!='Student, Test']
 
 print("Found a total of %d student records."%(len(data)))
 
-# Now make new columns with simpler names and convert them to numeric
-data['hw'] = to_numeric(data['Homework Final Score'])
-data['lab'] = to_numeric(data['Labs Final Score'])
-# Sometimes I capitalize 'Quizzes', sometimes I don't.
-if 'Quizzes Final Score' in data:
-    data['quiz'] = to_numeric(data['Quizzes Final Score'])
-else:
-    data['quiz'] = to_numeric(data['quizzes Final Score'])
+# Give the columns I use simpler names.  Note that 
+# I have sometimes not capitalized "Quizzes"
+data.rename(columns={'Homework Final Score':'hw',
+                    'Labs Final Score': 'lab',
+                    'Quizzes Final Score': 'quiz',
+                    'quizzes Final Score': 'quiz',
+                    'Final Final Score': 'final',
+                    'Final Score':'total'},inplace=True)
 
-data['final']= to_numeric(data['Final Final Score'])
-data['total']= to_numeric(data['Final Score'])
+
+
 # Make a histogram and a bar plot
-
 f,p = pyplot.subplots(2,2)
 
 histhw = p[0][0]  # Homework Histogram
@@ -60,15 +58,19 @@ histfinal = p[1][1] # Final histogram
 # Histogram
 histhw.hist(data['hw'],50,(0.,100.))
 histhw.set_xlabel('Homework')
+histhw.grid()
 
 histlab.hist(data['lab'],50,(0,100.))
 histlab.set_xlabel('Lab')
+histlab.grid()
 
 histquiz.hist(data['quiz'],50,(0,100.))
 histquiz.set_xlabel('Quiz')
+histquiz.grid()
 
 histfinal.hist(data['final'],50,(0.,100.))
 histfinal.set_xlabel('Final')
+histfinal.grid()
 
 #pyplot.show()
 f,p = pyplot.subplots(2,2)
@@ -87,15 +89,18 @@ bar = p[1][1]  # Total Bar Chart
 fvsh.scatter(data['hw'],data['final'])
 fvsh.set_xlabel('Homework')
 fvsh.set_ylabel('Final')
+fvsh.grid()
 
 
 fvsl.scatter(data['lab'],data['final'])
 fvsl.set_xlabel('Lab')
 fvsl.set_ylabel('Final')
+fvsl.grid()
 
 fvsq.scatter(data['quiz'],data['final'])
 fvsq.set_xlabel('Quiz')
 fvsq.set_ylabel('Final')
+fvsq.grid()
 
 # Descending bar plot
 y = np.arange(len(data['total']))
