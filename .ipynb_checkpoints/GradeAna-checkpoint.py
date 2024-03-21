@@ -9,6 +9,7 @@
 #   Labs
 #   Quizzes (or quizzes)
 #   Final
+# 21-MAR-2024  E.Prebys  Releasable version using verbatim exported file
 #
 import sys
 import numpy as np
@@ -25,14 +26,13 @@ else:
     
 print("Reading data from file ",filename,"...")
 
-# Read the exported grades from Canvas. Skip the second row because
-# it's got special text in it that will cause everything to read in
-# as an object
-data = pd.read_csv('totals.csv',skiprows=[1])
+# Read the exported grades from Canvas. 
+data = pd.read_csv(filename)
+# Drop the 1 or 2 lines that are blank in the ID column because those are not valid entries
+data = data[np.isnan(data['ID'])==False]
+
 # Drop the test student
 data = data[data['Student']!='Student, Test']
-
-print("Found a total of %d student records."%(len(data)))
 
 # Give the columns I use simpler names.  Note that 
 # I have sometimes not capitalized "Quizzes"
@@ -43,6 +43,15 @@ data.rename(columns={'Homework Final Score':'hw',
                     'Final Final Score': 'final',
                     'Final Score':'total'},inplace=True)
 
+
+# Because the columns originally had weird entries at the top, they were cast 
+# objects, so need to cast them as floats now and only keep those columns
+data = data[['hw','lab','quiz','final','total']].apply(pd.to_numeric)
+# Only look at students who took the final
+data = data[data['final']>0.]
+
+# How many usable records?
+print("Found a total of %d usable student records."%(len(data)))
 
 
 # Make a histogram and a bar plot
