@@ -10,6 +10,8 @@
 #   Quizzes (or quizzes)
 #   Final
 # 21-MAR-2024  E.Prebys  Releasable version using verbatim exported file
+# 22-MAR-2024  E.Prebys  Added check that Current Score matches Final Score
+#                        If not, it means some cells are not filled.
 #
 import sys
 import numpy as np
@@ -41,14 +43,25 @@ data.rename(columns={'Homework Final Score':'hw',
                     'Quizzes Final Score': 'quiz',
                     'quizzes Final Score': 'quiz',
                     'Final Final Score': 'final',
+                    'Current Score': 'current',
                     'Final Score':'total'},inplace=True)
 
 
 # Because the columns originally had weird entries at the top, they were cast 
 # objects, so need to cast them as floats now and only keep those columns
-data = data[['hw','lab','quiz','final','total']].apply(pd.to_numeric)
+data = data[['hw','lab','quiz','final','current','total']].apply(pd.to_numeric)
 # Only look at students who took the final
 data = data[data['final']>0.]
+
+# Check that the current score is equal to the final score.  If not, some entries
+# are blank
+data_check = data[data['current']!=data['total']]
+nbad = len(data_check)
+if(nbad==0):
+	print("All values for Current Score match Final Score. Looks good!")
+else:
+	print("Found %d rows where Current Score doesn't match Final Score!"%(nbad))
+	print("This usually means some grade entries are missing!")
 
 # How many usable records?
 print("Found a total of %d usable student records."%(len(data)))
