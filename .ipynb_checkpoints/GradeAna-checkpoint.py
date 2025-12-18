@@ -1,30 +1,85 @@
 #
-# Python routine to read the exported grades from Canvas and make some diagnostic plots
+# Python routine to read the exported grades from Canvas and make the following plots
+# on two four plot pages
+#
+#  Page 1:
+#      Four histograms of columns of your choice
+#  Page 2:
+#      Three scatter plots of columns of your choice
+#      On descending horizontal bar chart, usually of the Final score, to be used for grade
+#      cuts.
 #
 # Usage:
-#   python3 GradeAna.py [export_file.csv]
+#   python3 GradeAna.py 
 #
-# Expects assignment categories
-#   Homework
-#   Labs
-#   Quizzes (or quizzes)
-#   Final
+# The user should have to make no changes to this file!
+#
+# This expects to find the file GradeAna_User, in which all of the plots are defined.
+# 
+#
+# 17-DEC-2025  E.Prebys  MAJOR changes. 
+#                            - Added a file browser to choose input file and
+#                            - Moved all user definitions to the GradeAna_user.py file
+# 22-MAR-2024  E.Prebys  Added check that Current Score matches Final Score
+#                        If not, it means some cells are not filled.
 # 21-MAR-2024  E.Prebys  Releasable version using verbatim exported file
 #
+# Required imports
 import sys
+import importlib.util
 import numpy as np
-import matplotlib
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import pandas as pd
+from tkinter import filedialog
+#
+# Choose the file with the plot definitions
+filename = filedialog.askopenfilename(
+        initialdir=".",
+        title="Select Histogram Definition File",
+        filetypes=(("Python Files", "*.py"), ("All files", "*.*"))
+    )
 
-if (len(sys.argv)>1):
-    filename = sys.argv[1]
-else:
-    filename = 'totals.csv'
-    
+if not filename:
+    print("No file selected. Exiting.")
+    sys.exit()
+print(f"Loading definitions from file {filename}")
+spec = importlib.util.spec_from_file_location("GradeAna_User", filename)
+mymodule = importlib.util.module_from_spec(spec)
+sys.modules["GradeAna_User"] = mymodule
+spec.loader.exec_module(mymodule)
+
+# Call the routine to define the plots
+columns, hists, scatters, barchart, figsize= mymodule.define_plots()
+
+print("Program will plot the following:")
+print("\tHistorams:")
+for h in hists:
+    print(f"\t\tColumn: {h[0]}, bins={h[1]}, range={h[2]}")
+print("\tScatter Plots:")
+for s in scatters:
+    print(f"\t\t{s[1]} vs. {s[0]}")
+print("\tBar Chart:")
+print(f"\t\t{barchart[0]}, range={barchart[1]}")
+
+#
+
+
+# Select the exported grade file
+filename = filedialog.askopenfilename(
+        initialdir=".",
+        title="Select the exported Canvas GradeBook",
+        filetypes=(("CSV Files", "*.csv"), ("All files", "*.*"))
+    )
+
+if not filename:
+    print("No file selected. Exiting.")
+    sys.exit()
+
+
 print("Reading data from file ",filename,"...")
+
 
 # Read the exported grades from Canvas. 
 data = pd.read_csv(filename)
@@ -34,95 +89,75 @@ data = data[np.isnan(data['ID'])==False]
 # Drop the test student
 data = data[data['Student']!='Student, Test']
 
-# Give the columns I use simpler names.  Note that 
-# I have sometimes not capitalized "Quizzes"
-data.rename(columns={'Homework Final Score':'hw',
-                    'Labs Final Score': 'lab',
-                    'Quizzes Final Score': 'quiz',
-                    'quizzes Final Score': 'quiz',
-                    'Final Final Score': 'final',
-                    'Final Score':'total'},inplace=True)
 
-
-# Because the columns originally had weird entries at the top, they were cast 
+### Because the columns originally had weird entries at the top, they were cast 
 # objects, so need to cast them as floats now and only keep those columns
-data = data[['hw','lab','quiz','final','total']].apply(pd.to_numeric)
+data[columns] = data[columns].apply(pd.to_numeric)
 # Only look at students who took the final
-data = data[data['final']>0.]
+data = data[data['Final Final Score']>0.]
+
+
+# Check that the current score is equal to the final score.  If not, some entries are blank
+data_check = data[data['Current Score']!=data['Final Score']]
+nbad = len(data_check)
+if(nbad==0):
+	print("All values for Current Score match Final Score. Looks good!")
+else:
+	print(f"Found the folling {nbad} rows where Current Score doesn't match Final Score (This usually means some grade entries are missing):")
+	for name in data_check['Student']:
+		print('\tName: ',name)
 
 # How many usable records?
 print("Found a total of %d usable student records."%(len(data)))
 
 
 # Make a histogram and a bar plot
-f,p = pyplot.subplots(2,2)
+f,ax = plt.subplots(2,2,figsize=figsize)
 
-histhw = p[0][0]  # Homework Histogram
-histlab = p[0][1]  # lab histogram
-histquiz = p[1][0]  # quiz historgram
-histfinal = p[1][1] # Final histogram
+for i,h in enumerate(hists):
+    row = i//2
+    col = i%2
+    p = ax[row][col]
+    
+    p.hist(data[h[0]],bins=h[1],range=h[2])
+    p.set_xlabel(h[0])
+    p.grid()
 
-
-
-# Histogram
-histhw.hist(data['hw'],50,(0.,100.))
-histhw.set_xlabel('Homework')
-histhw.grid()
-
-histlab.hist(data['lab'],50,(0,100.))
-histlab.set_xlabel('Lab')
-histlab.grid()
-
-histquiz.hist(data['quiz'],50,(0,100.))
-histquiz.set_xlabel('Quiz')
-histquiz.grid()
-
-histfinal.hist(data['final'],50,(0.,100.))
-histfinal.set_xlabel('Final')
-histfinal.grid()
-
-#pyplot.show()
-f,p = pyplot.subplots(2,2)
+plt.tight_layout()
+plt.show()
 
 
-fvsh = p[0][0] # Final vs HW
-fvsl = p[0][1] # Final vs lab
-fvsq = p[1][0] # Final vs quizz
-bar = p[1][1]  # Total Bar Chart
+
+# Make the scatterplots
+f,ax = plt.subplots(2,2,figsize=figsize)
 
 
-#histtotal.hist(data['total'],20,(60.,100.))
-#histtotal.set_xlabel('Total')
+for i,pair in enumerate(scatters):
+    row = i//2
+    col = i%2
+    p = ax[row][col]
 
-# p[0].hist(data['Total'],15,(70.,100.))
-fvsh.scatter(data['hw'],data['final'])
-fvsh.set_xlabel('Homework')
-fvsh.set_ylabel('Final')
-fvsh.grid()
+    p.scatter(data[pair[0]],data[pair[1]])
+    p.set_xlabel(pair[0])
+    p.set_ylabel(pair[1])
+    p.grid()
 
 
-fvsl.scatter(data['lab'],data['final'])
-fvsl.set_xlabel('Lab')
-fvsl.set_ylabel('Final')
-fvsl.grid()
-
-fvsq.scatter(data['quiz'],data['final'])
-fvsq.set_xlabel('Quiz')
-fvsq.set_ylabel('Final')
-fvsq.grid()
 
 # Descending bar plot
-y = np.arange(len(data['total']))
-x = sorted(data['total'])
+bar = ax[1][1]
+y = np.arange(len(data[barchart[0]]))
+x = sorted(data[barchart[0]])
 
 bar.barh(y,x)
-bar.set_xlim(40.,100.)
+bar.set_xlim(barchart[1])
 bar.set_ylim(0,len(x))
 bar.xaxis.set_major_locator(MultipleLocator(10))
 bar.xaxis.set_minor_locator(MultipleLocator(1))
 bar.grid(True,which='major',color='b',linestyle='-')
 bar.grid(True,which='minor',color='r',linestyle='--')
-bar.set_xlabel('Total')
+bar.set_xlabel(barchart[0])
 
+plt.tight_layout()
 
-pyplot.show()
+plt.show()

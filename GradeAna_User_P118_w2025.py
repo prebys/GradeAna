@@ -10,32 +10,31 @@
 def define_plots():
     # Define and columns we are interested in or might be interested in.
     # This list will be used to convert these columns to numerical values
-    # This list MUST include 'Current Score' and 'Final Score', because they will be used to check for
-    # missing values
     #
-    columns = ['Homework Final Score',
-               'Labs Final Score',
-               'Quizzes Final Score',
-               'Final Final Score',
-               'Current Score',
-               'Final Score']
+    # The indices of this list will be used to define the histograms and
+    # scatter plots
+    cols = ['Homework Final Score',		# 0
+               'Labs Final Score',		# 1
+               'Quizzes Final Score',	# 2
+               'Final Final Score',		# 3
+               'Final Score']			# 4
 
-    # Define four histograms format [column name',bins,range]
-    hists = [['Homework Final Score',50,(0.,100.)],
-            ['Quizzes Final Score',50,(0.,100.)],
-            ['Labs Final Score',50,(0.,100.)],
-            ['Final Final Score',50,(0.,100.)]]
+    # Define four histograms format [column index,bins,range]
+    hists = [[0,50,(0.,100.)],
+            [1,50,(0.,100.)],
+            [2,50,(0.,100.)],
+            [3,50,(0.,100.)]]
 
     # Define 3 scatter plots based on the histogram definitions above
-    scatters = [['Homework Final Score','Final Final Score'],
-                ['Labs Final Score','Final Final Score'],
-                ['Quizzes Final Score','Final Final Score']]
+    scatters = [[0,3],
+                [1,3],
+                [2,3]]
 
     # Define what you want to bar chart, as well as the x range
-    barchart = ['Final Score',(40.,100.)]
+    barchart = [4,(40.,100.)]
 
-    # Individual figure size
-    figsize = (8,8)
+    # Individual figure size 
+    figsize = (8,6)
 
-    return columns, hists, scatters, barchart, figsize
+    return cols, hists, scatters, barchart, figsize
 

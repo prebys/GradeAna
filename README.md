@@ -11,14 +11,18 @@ The program will make two pages of plots:
   *  three scatter plots
   * On horizontal bar chart, to be used to determin grade cuts
   
-The columns to be used are defined in GradeAna_User.py.  The user should not have to
+The program will automatically create 'GradeAna1.png' and 'GradeAna2.png' from these
+pages.
+  
+The columns to be used are defined in GradeAna_User.py file.  The file can have any name
+ending in .py and is selected at run time. The user should not have to
 edit GradeAna.py at all.
 
 Usage:
 
 > python3 GradeAna.py 
 
-A file browser will allow you to choose the export file.
+File browsers will allow you to choose both the configuration file and the grade file.
 
 There are two example export file/user python files included:
 
@@ -26,8 +30,12 @@ There are two example export file/user python files included:
 * P40 from Fall 2025
 
 The student names and ID numbers have been redacted.
-The correct GradeAna_User file must be copied to GradeAna_User.py prior to using it.
 
+Known problems:
+
+* On MacOS, you get the warning: 
+    * The class 'NSOpenPanel' overrides the method identifier.  This method is implemented by class 'NSWindow'
+    * It can be ignored.
 
 Versions
 --------
@@ -35,5 +43,6 @@ Versions
 v1.0	17-DEC-2023	E. Prebys	Original
 v2.0 	14-MAR-2024 E. Prebys   Reads exported gradebook directly.
 v3.0    17-DEC-2025 E. Prebys	Major changes.  Moved user stuff to GradeAna_User
-_
+v4.0	18-DEC-2025 E. Prebys   Made configuration file selectable.  Use indices instead
+                                of names for the plots.
 			

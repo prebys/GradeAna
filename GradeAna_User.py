@@ -10,33 +10,32 @@
 def define_plots():
     # Define and columns we are interested in or might be interested in.
     # This list will be used to convert these columns to numerical values
-    # This list MUST include 'Current Score' and 'Final Score', because they will be used to check for
-    # missing values
     #
-    columns = ['Labs Final Score',
-               'Quizzes Final Score',
-               'Lab Attendance Final Score',
-               'Midterm Final Score',
-               'Final Final Score',
-               'Current Score',
-               'Final Score']
+    # The indices of this will be used to define the subsequent plots
+    #
+    cols = ['Labs Final Score',				    # 0
+               'Quizzes Final Score',			# 1
+               'Lab Attendance Final Score',	# 2
+               'Midterm Final Score',			# 3
+               'Final Final Score',				# 4
+               'Final Score']					# 5
 
-    # Define four histograms format [column name',bins,range]
-    hists = [['Labs Final Score',50,(0.,100.)],
-            ['Quizzes Final Score',50,(0.,100.)],
-            ['Midterm Final Score',50,(0.,100.)],
-            ['Final Final Score',50,(0.,100.)]]
+    # Define four histograms format [column index,bins,range]
+    hists = [[0,50,(0.,100.)],
+            [1,50,(0.,100.)],
+            [3,50,(0.,100.)],
+            [4,50,(0.,100.)]]
 
-    # Define 3 scatter plots based on the histogram definitions above
-    scatters = [['Midterm Final Score','Final Final Score'],
-                ['Labs Final Score','Final Final Score'],
-                ['Quizzes Final Score','Final Final Score']]
+    # Define 3 scatter plots based on the column definitions above
+    scatters = [[1,4],
+                [2,4],
+                [3,4]]
 
     # Define what you want to bar chart, as well as the x range
-    barchart = ['Final Score',(40.,100.)]
+    barchart = [5,(40.,100.)]
 
-    # Individual figure size
-    figsize = (8,8)
+    # Individual figure size. Should not be smaller than (6,6)
+    figsize = (8,6)
 
-    return columns, hists, scatters, barchart, figsize
+    return cols, hists, scatters, barchart, figsize
 
