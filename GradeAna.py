@@ -112,12 +112,8 @@ def GradeAna():
     # Now start the tkinter window.  For some reason if I do this before the filedialog
     # it causes trouble.    
     plt.tight_layout()
-    root = Tk()
-    root.title("Histograms")
-    # Create the histogram page
-    canvas1 = FigureCanvasTkAgg(f, master=root)
-    canvas1.draw()
-    canvas1.get_tk_widget().pack()
+    # Use the resizable version of Tk()
+    root = ResizeableTk(f,"Histograms")
     f.savefig('GradeAna1.png')
     
     # root.mainloop()
@@ -153,14 +149,9 @@ def GradeAna():
     bar.set_xlabel(cols[barchart[0]])
     
     plt.tight_layout()
-    root = Tk()
+    root = ResizeableTk(f,"Scatter Plots and Bar Chart")
 
-    canvas2 = FigureCanvasTkAgg(f,master=root)
-    root.title("Scatter Plots and Bar Chart")
-
-    canvas2.draw()
-    canvas2.get_tk_widget().pack()
-    f.savefig('GradeAna2.png')
+   f.savefig('GradeAna2.png')
 
 
     root.mainloop()
@@ -209,6 +200,35 @@ def GetGradeFile():
     return filename
 #####################################################################################
 #
+# Resizable Tk windows
+#
+class ResizeableTk(Tk):
+    def __init__(self,fig,title):
+        super().__init__()
+
+        self.title(title)
+
+        # Make the window grid expandable
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Create matplotlib Figure
+        self.fig = fig
+        # Embed in Tkinter
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+
+        widget = self.canvas.get_tk_widget()
+        widget.grid(row=0, column=0, sticky="nsew")
+
+        # Optional: improve layout on resize
+        self.bind("<Configure>", self.on_resize)
+
+    def on_resize(self, event):
+        # Recalculate layout on resize
+        self.fig.tight_layout()
+        self.canvas.draw_idle()
+####################################################################################
 # Execute the main loop    
 if __name__ == "__main__":
     GradeAna()
