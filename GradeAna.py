@@ -38,6 +38,7 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
+import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 ###################################################################################
@@ -151,10 +152,10 @@ def GradeAna():
     plt.tight_layout()
     root = ResizeableTk(f,"Scatter Plots and Bar Chart")
 
-   f.savefig('GradeAna2.png')
+    f.savefig('GradeAna2.png')
 
 
-    root.mainloop()
+    tk.mainloop()
 #####################################################################################
 # Routine to load plot definitions from GradeAna_User file
 #
