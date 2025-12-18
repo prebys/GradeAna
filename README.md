@@ -45,4 +45,5 @@ v2.0 	14-MAR-2024 E. Prebys   Reads exported gradebook directly.
 v3.0    17-DEC-2025 E. Prebys	Major changes.  Moved user stuff to GradeAna_User
 v4.0	18-DEC-2025 E. Prebys   Made configuration file selectable.  Use indices instead
                                 of names for the plots.
+v4.1    19-DEC-2025 E. Prebys   Made figures resizeable.  Fixed Windows problems.
 			

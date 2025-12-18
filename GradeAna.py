@@ -100,7 +100,7 @@ def GradeAna():
 
 
     # Make a histograms
-    f,ax = plt.subplots(2,2,figsize=figsize)
+    f1,ax = plt.subplots(2,2,figsize=figsize)
 
     for i,h in enumerate(hists):
         row = i//2
@@ -112,15 +112,13 @@ def GradeAna():
         p.grid()
     # Now start the tkinter window.  For some reason if I do this before the filedialog
     # it causes trouble.    
-    plt.tight_layout()
+    plt.tight_layout()        # keeps things from overlapping
     # Use the resizable version of Tk()
-    root = ResizeableTk(f,"Histograms")
-    f.savefig('GradeAna1.png')
-    
-    # root.mainloop()
+    root = ResizeableTk(f1,"Histograms")
 
+    
     # Make the scatterplots
-    f,ax = plt.subplots(2,2,figsize=figsize)
+    f2,ax = plt.subplots(2,2,figsize=figsize)
 
 
     for i,pair in enumerate(scatters):
@@ -148,14 +146,15 @@ def GradeAna():
     bar.grid(True,which='major',color='b',linestyle='-')
     bar.grid(True,which='minor',color='r',linestyle='--')
     bar.set_xlabel(cols[barchart[0]])
-    
-    plt.tight_layout()
-    root = ResizeableTk(f,"Scatter Plots and Bar Chart")
-
-    f.savefig('GradeAna2.png')
-
+    plt.tight_layout()        # keeps things from overlapping
+    # Use the resizable Tk()
+    root = ResizeableTk(f2,"Scatter Plots and Bar Chart")
 
     tk.mainloop()
+    # Save the figures at the end to get the resized versions!
+    f1.savefig("GradeAna1.png")
+    f2.savefig("GradeAna2.png")
+    
 #####################################################################################
 # Routine to load plot definitions from GradeAna_User file
 #
