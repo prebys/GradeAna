@@ -119,6 +119,8 @@ def GradeAna():
     canvas1.draw()
     canvas1.get_tk_widget().pack()
     f.savefig('GradeAna1.png')
+    
+    root.mainloop()
 
     # Make the scatterplots
     f,ax = plt.subplots(2,2,figsize=figsize)
