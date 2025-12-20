@@ -16,10 +16,11 @@
 #
 # The user should have to make no changes to this file!
 #
-# This expects to find the file GradeAna_User, in which all of the plots are defined.
+# This expects to find the file define_plots.py, in which all of the plots are defined.
 # 
 #
 #
+# 19-DEC-2025  E.Prebys  Changed some of the naming conventions.
 # 18-DEC-2025  E.Prebys  Changed to use tkinter for plots to stop annoying ghost window
 #                        Rearranged code a bit to make it more readable. 
 # 17-DEC-2025  E.Prebys  MAJOR changes. 
@@ -46,7 +47,7 @@ from tkinter import filedialog
 def GradeAna():
 
     # Load the plot definitions
-    cols, hists, scatters, barchart, figsize=GetPlotDefinitions()
+    cols, hists, scatters, barchart, figsize=get_plot_definitions()
 
     print("Program will plot the following:")
     print("\tHistorams:")
@@ -61,26 +62,16 @@ def GradeAna():
 
 
     # Select the exported grade file
-    filename = GetGradeFile()
+    filename = get_grade_filename()
 
 
     print("Reading data from file ",filename,"...")
 
 
     # Read the exported grades from Canvas. 
-    data = pd.read_csv(filename)
-    # Drop the 1 or 2 lines that are blank in the ID column because those are not valid entries
-    data = data[np.isnan(data['ID'])==False]
+    data = read_canvas_file(filename)
     # Drop the test student
     data = data[data['Student']!='Student, Test']
-
-
-    ### Because the columns originally had weird entries at the top, they were cast 
-    # objects, so need to cast them as floats now and only keep those columns
-    data[cols] = data[cols].apply(pd.to_numeric)
-    # Make sure to include 'Current Score' and 'Final Score', even if they're not in the list
-    data[['Current Score','Final Score']] = data[['Current Score','Final Score']].apply(pd.to_numeric)
-
     # Only look at students who took the final
     data = data[data['Final Final Score']>0.]
 
@@ -152,13 +143,13 @@ def GradeAna():
 
     tk.mainloop()
     # Save the figures at the end to get the resized versions!
-    f1.savefig("GradeAna1.png")
-    f2.savefig("GradeAna2.png")
+    f1.savefig("page_1.png")
+    f2.savefig("page_2.png")
     
 #####################################################################################
 # Routine to load plot definitions from GradeAna_User file
 #
-def GetPlotDefinitions():
+def get_plot_definitions():
     #
     # Choose the file with the file dialog
     #
@@ -169,16 +160,16 @@ def GetPlotDefinitions():
         )
 
     if not filename:
-        print("No file selected.  Using 'GradeAna_User.py")
-        filename = 'GradeAna_User.py'
+        print("No file selected.  Using 'define_plots.py")
+        filename = 'define_plots.py'
 
     print(f"Loading definitions from file {filename}")
     #
     #  These next lines load a module based on a file path.
     #  I don't pretend to understand this.  I just asked ChatGPT
-    spec = importlib.util.spec_from_file_location("GradeAna_User", filename)
+    spec = importlib.util.spec_from_file_location("define_plots", filename)
     mymodule = importlib.util.module_from_spec(spec)
-    sys.modules["GradeAna_User"] = mymodule
+    sys.modules["define_plots"] = mymodule
     spec.loader.exec_module(mymodule)
 
     # Call the routine to define the plots
@@ -187,7 +178,7 @@ def GetPlotDefinitions():
 #####################################################################################
 # Routine to get grade file
 #
-def GetGradeFile():
+def get_grade_filename():
     filename = filedialog.askopenfilename(
             initialdir=".",
             title="Select the exported Canvas GradeBook",
@@ -198,6 +189,23 @@ def GetGradeFile():
         print("No file selected. Using 'grades.csv'")
         filename='grades.csv'
     return filename
+#####################################################################################
+#
+# Read the exported data file
+#
+def read_canvas_file(filename):
+    # Read the exported grades from Canvas. 
+    data = pd.read_csv(filename)
+    # Drop the 1 or 2 lines that are blank in the ID column because those are not valid entries
+    data = data[np.isnan(data['ID'])==False]
+    # Because there were originally weird things in the first 1 or 2 lines, everything got cast as an object, so must convert back to numbers
+    for col in data:
+        try:
+            data[col] = data[col].apply(pd.to_numeric)
+        except:
+            pass
+    return data
+
 #####################################################################################
 #
 # Resizable Tk windows
